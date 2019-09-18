@@ -16,7 +16,7 @@ const courseSchema = new Schema(
       type: String,
       enum: ["Full-Time", "Part-Time"]
     },
-    // students: [ { type : Schema.Types.ObjectId, ref: 'User' } ]
+    students: [ { type : Schema.Types.ObjectId, ref: 'User' } ]
   },
   { timestamps: true }
 );

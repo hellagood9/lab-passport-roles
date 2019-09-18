@@ -9,6 +9,12 @@
   <input type="radio" name="type" value="Full-Time" checked> Full-Time
   <input type="radio" name="type" value="Part-Time"> Part-Time
 
+  <select name="director" id="">
+    {{#each students}}
+    <option value="{{this._id}}">{{this.username}}</option>
+    {{/each }}
+  </select>
+
   <button type="submit">Create Course</button>
 </form>
 

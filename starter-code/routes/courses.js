@@ -5,7 +5,11 @@ const Users = require("../models/User");
 const checker = require("../middlewares/checker");
 
 router.get("/courses", checker.checkLogin, (req, res) => {
-  if (req.user.role === "TA" || req.user.role === "Student" || req.user.role === "Boss") {
+  if (
+    req.user.role === "TA" ||
+    req.user.role === "Student" ||
+    req.user.role === "Boss"
+  ) {
     Course.find()
       .sort({ title: 1 })
       .then(courses => {
@@ -18,16 +22,14 @@ router.get("/courses", checker.checkLogin, (req, res) => {
 });
 
 router.get("/courses/create", checker.checkLogin, (req, res) => {
-  Users.find()
-  .then(students => {
+  Users.find().then(students => {
     res.render("courses/create", { students });
-  })
-  
+  });
 });
 
 router.get("/courses/:id", checker.checkLogin, (req, res, next) => {
   Course.findById(req.params.id)
-  .select({ _id: 0 })
+    .select({ _id: 0 })
     .then(course => {
       res.render("courses/detail", { course });
     })
@@ -44,17 +46,17 @@ router.post("/courses/create", checker.checkLogin, (req, res) => {
   };
 
   Course.create(newCourse)
-  // .then(courses => {
-  //   Users.findById(req.body.students, {
-  //     $push: { students: courses._id}
-  //   })
-  //   .then(updated => {
-  //     res.redirect("/courses");
-  //   })   
-  // })
     .then(courses => {
-      res.redirect("/courses");
+      Users.findByIdAndUpdate(req.body.students, courses, {
+        $push: { students: [courses._id] },
+        new: true
+      }).then(updated => {
+        res.redirect("/courses");
+      });
     })
+    // .then(courses => {
+    //   res.redirect("/courses");
+    // })
     .catch(error => {
       console.log(error);
       res.render("courses/create");
