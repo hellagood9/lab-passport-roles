@@ -2,4 +2,15 @@
 
 <h1>About this Course</h1>
 
-{{course}}
+<h3>{{course.title}}</h3>
+{{course.field}}
+({{course.type}})
+
+{{#if course.students}}
+<h4>Students in this course:</h4>
+<ul>
+  {{#each course.students}}
+  <li>{{username}}</li>
+  {{/each}}
+</ul>
+{{/if}}

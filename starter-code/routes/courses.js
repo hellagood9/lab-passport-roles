@@ -29,6 +29,7 @@ router.get("/courses/create", checker.checkLogin, (req, res) => {
 
 router.get("/courses/:id", checker.checkLogin, (req, res, next) => {
   Course.findById(req.params.id)
+    .populate("students")
     .select({ _id: 0 })
     .then(course => {
       res.render("courses/detail", { course });
@@ -47,16 +48,8 @@ router.post("/courses/create", checker.checkLogin, (req, res) => {
 
   Course.create(newCourse)
     .then(courses => {
-      Users.findByIdAndUpdate(req.body.students, courses, {
-        $push: { students: [courses._id] },
-        new: true
-      }).then(updated => {
-        res.redirect("/courses");
-      });
+      res.redirect("/courses");
     })
-    // .then(courses => {
-    //   res.redirect("/courses");
-    // })
     .catch(error => {
       console.log(error);
       res.render("courses/create");
@@ -64,22 +57,23 @@ router.post("/courses/create", checker.checkLogin, (req, res) => {
 });
 
 router.get("/courses/:id/edit", (req, res, next) => {
-  Course.findByIdAndUpdate(req.params.id)
+  Course.findById(req.params.id)
     .then(course => {
-      res.render("courses/edit", { course });
+      Users.find().then(students => {
+        res.render("courses/edit", { course, students });
+      });
     })
     .catch(error => next(error));
 });
 
 router.post("/courses/:id", (req, res, next) => {
-  const courseToUpdate = {
-    title: req.body.title,
-    duration: req.body.duration,
-    field: req.body.field,
-    type: req.body.type
-  };
+  const { title, duration, field, type, students } = req.body;
 
-  Course.findByIdAndUpdate(req.params.id, courseToUpdate, { new: true })
+  Course.findByIdAndUpdate(
+    req.params.id,
+    { title, duration, field, type, $push: { students } },
+    { new: true }
+  )
     .then(course => {
       res.redirect("/courses");
     })
