@@ -53,11 +53,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 
+require('./helpers/checkRole');
 
 // default value for title local
 app.locals.title = 'Passport: User roles';
-
-
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
 
 const index = require('./routes/index');
 app.use('/', index);
